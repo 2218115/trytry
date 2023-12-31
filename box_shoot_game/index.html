@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Box Shoots</title>
+  <script src="./index.js"></script>
+  <style>
+    body {
+      padding: 2rem;
+      text-align: center;
+      font-family: 'Courier New';
+      display: flex;
+      gap: 3rem;
+      justify-content: center;
+    }
+
+    .container {
+      display: inline-block;
+      padding: 0.5rem;
+      width: fit-content;
+      height: fit-content;
+      border: 2px solid rgb(199, 199, 199);
+      border-radius: 8px;
+    }
+
+    button {
+      padding: 0.3rem 1rem 0.3rem 1rem;
+    }
+
+    @keyframes shadow_animation {
+      from {
+        box-shadow: none;
+      }
+
+      to {
+        box-shadow: 12px 12px 1px black;
+      }
+    }
+
+    @keyframes shadow_animation_red {
+      from {
+        box-shadow: none;
+      }
+
+      to {
+        box-shadow: 12px 12px 1px rgb(255, 9, 9);
+      }
+    }
+
+    @keyframes shadow_animation_green {
+      from {
+        box-shadow: none;
+      }
+
+      to {
+        box-shadow: 12px 12px 1px rgb(18, 207, 18);
+      }
+    }
+
+    .animated {
+      animation-name: shadow_animation;
+      animation-duration: 300ms;
+      animation-iteration-count: infinite;
+      transition-duration: 1000ms;
+    }
+
+    .animated-red {
+      animation-name: shadow_animation_red;
+      animation-duration: 300ms;
+      animation-iteration-count: infinite;
+      transition-duration: 1000ms;
+    }
+
+    .animated-green {
+      animation-name: shadow_animation_green;
+      animation-duration: 300ms;
+      animation-iteration-count: infinite;
+      transition-duration: 1000ms;
+    }
+
+    .down {
+      transform: scale(0);
+    }
+
+    .up {
+      transform: scale(1);
+    }
+  </style>
+</head>
+
+<body>
+  <div style="display: flex; flex-direction: column; gap: 2rem; align-items: stretch;">
+    <div class="container animated-green" style="width: 100%; display: none;" id="special_shoot_card">
+      <h2>Super Shoot<br> Available 🚀</h2>
+    </div>
+
+    <div class="container" style="width: 100%;">
+      <p>Player Point</p>
+      <h2><span id="player_point">0</span></h2>
+    </div>
+
+    <div class="container" style="width: 100%;">
+      <p>Player Life</p>
+      <h2 id="player_life">0</h2>
+    </div>
+
+    <div class="container" style="width: 100%;">
+      <p>Rainbow Power</p>
+      <h2><span id="rainbow_power">0</span></h2>
+    </div>
+
+    <div class="container" style="width: 100%;">
+      <h1>Box Shoot</h1>
+      <p>Old Highest Point</p>
+      <h2><span id="old_point">null</span></h2>
+    </div>
+
+  </div>
+
+  <div class="container">
+    <canvas id="main_canvas" width="800" height="800"></canvas>
+  </div>
+
+  <div style="display: flex; flex-direction: column; gap: 2rem; align-items: stretch;">
+
+    <div class="container animated" style="width: 100%;">
+      <p>Control Game State</p>
+      <button id="toogle_pause">Paused</button>
+    </div>
+
+    <div class="container" style="width: 100%;">
+      <p>Audio <span style="color: red;">Not done yet</span></p>
+      <button id="toogle_audio">Audio ON</button>
+    </div>
+
+    <div class="container" style="width: 100%;">
+      <p>Player Color</p>
+      <input type="color" id="player_color" />
+    </div>
+
+    <div class="container" style="width: 100%;">
+      <p>Enemy Color</p>
+      <input type="color" id="enemy_color" />
+    </div>
+
+  </div>
+</body>
+
+</html>

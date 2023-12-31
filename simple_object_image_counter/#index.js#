@@ -1,0 +1,322 @@
+/*
+* @author: makrusali
+* @creted: 12/2/2023
+*
+*
+* @note
+* gaya pengkodean
+* nama variabel : namaVariabel
+* nama fungsi   : namaFungsi
+* nama object DOM selalu di ikuti prefix el (element) contoh: elButtonProccess
+*/
+
+// TODO(makrusali): do labeling algorithm
+
+function on_render_window() {
+    console.log("Halo teman teman");
+}
+
+window.onload = () => {
+    ////////////// binding
+    
+    const elInputFileImage = document.getElementById("input-file-image");
+    const elCanvasImageInput = document.getElementById("canvas-image-input");
+    const elTBodyValueInputImageR = document.getElementById("tbody-value-input-image-r");
+    const elTBodyValueInputImageG = document.getElementById("tbody-value-input-image-g");
+    const elTBodyValueInputImageB = document.getElementById("tbody-value-input-image-b");
+    const elCanvasHistogramImageInputR = document.getElementById("canvas-histogram-image-input-r");
+    const elCanvasHistogramImageInputG = document.getElementById("canvas-histogram-image-input-g");
+    const elCanvasHistogramImageInputB = document.getElementById("canvas-histogram-image-input-b");
+    const elButtonShowOrHideRTableInputImage = document.getElementById("button-table-r-input-image");
+    const elButtonShowOrHideGTableInputImage = document.getElementById("button-table-g-input-image");
+    const elButtonShowOrHideBTableInputImage = document.getElementById("button-table-b-input-image");
+    
+    const elTBodyValueInputImageGray = document.getElementById("tbody-value-gray-image");
+    const elButtonShowOrHideTableGrayImage = document.getElementById("button-table-gray-image");
+    const elCanvasHistogramImageGray = document.getElementById("canvas-histogram-image-gray");
+    const elCanvasImageGray = document.getElementById("canvas-image-gray");
+    
+    
+    ///////////// event 
+    elInputFileImage.onchange = handleOnChangeFileImage;
+    elButtonShowOrHideRTableInputImage.onclick = handleButtonShowHideRTableInputImage;
+    elButtonShowOrHideGTableInputImage.onclick = handleButtonShowHideGTableInputImage;
+    elButtonShowOrHideBTableInputImage.onclick = handleButtonShowHideBTableInputImage;
+    elButtonShowOrHideTableGrayImage.onclick = handleButtonShowHideGrayImage;
+    
+    const ctxCanvasImageInput = elCanvasImageInput.getContext("2d");
+    const ctxCanvasHistogramImageInputR = elCanvasHistogramImageInputR.getContext("2d");
+    const ctxCanvasHistogramImageInputG = elCanvasHistogramImageInputG.getContext("2d");
+    const ctxCanvasHistogramImageInputB = elCanvasHistogramImageInputB.getContext("2d");
+    const ctxCanvasGrayImage = elCanvasImageGray.getContext("2d");
+    const ctxCanvasHistogramImageGray = elCanvasHistogramImageGray.getContext("2d");
+    
+    function handleOnChangeFileImage() {
+	const file = elInputFileImage.files[0];
+	const { name, size, type } = file;
+	
+	const inputImage = new Image();
+	inputImage.src = URL.createObjectURL(file);
+	inputImage.onload = () => {
+	    const width = inputImage.width;
+	    const height = inputImage.height;
+	    
+	    elCanvasImageInput.width = width;
+	    elCanvasImageInput.height = height;
+	    ctxCanvasImageInput.drawImage(inputImage, 0, 0);
+	    const inputImageData = ctxCanvasImageInput.getImageData(0, 0, width, height);			
+	    
+	    const imageBuffer = inputImageData;
+	    
+	    // input image drawing information
+	    renderImageValueOnTable(elTBodyValueInputImageG, inputImageData.data, 1, width, height, "G");
+	    renderImageValueOnTable(elTBodyValueInputImageB, inputImageData.data, 2, width, height, "B");
+	    const [	redHist, greenHist, blueHist ] = getHistValuesFromImageData(inputImageData.data);
+	    renderHistogramOnCanvas(ctxCanvasHistogramImageInputR, redHist);
+	    renderHistogramOnCanvas(ctxCanvasHistogramImageInputG, greenHist);
+	    renderHistogramOnCanvas(ctxCanvasHistogramImageInputB, blueHist);
+	    
+	    // gray image drawing information
+	    elCanvasImageGray.width = width;
+	    elCanvasImageGray.height = height;
+	    
+	    // @Note: grayscale 
+	    for (let i = 0;i < imageBuffer.data.length;i+=4) {
+		const val = Math.round((imageBuffer.data[i + 0] + imageBuffer.data[i + 1] + imageBuffer.data[i + 2]) / 3);
+		imageBuffer.data[i + 0] = val;
+		imageBuffer.data[i + 1] = val;
+		imageBuffer.data[i + 2] = val;
+	    }
+	    
+	    const val = calcMean(height - 1, width - 1, Math.floor(width / 2), Math.floor(height / 2), imageBuffer.data, width, height);
+	    console.log(val);
+	    
+	    for (let row = 1;row < height - 1;++row) {
+		for (let col = 1;col < width - 1;++col) {
+		    const index = col * 4 + (row * width * 4);
+		    
+		    imageBuffer.data[index + 0] = imageBuffer.data[index] >= 128 ? 255 : 0;
+		    imageBuffer.data[index + 1] = imageBuffer.data[index] >= 128 ? 255 : 0;
+		    imageBuffer.data[index + 2] = imageBuffer.data[index] >= 128 ? 255 : 0;
+		}
+	    }
+	    
+	    /*
+	      for (let i = 0;i < imageBuffer.data.length;i+=4) {
+	      const val = imageBuffer.data[i];
+	      imageBuffer.data[i + 0] = val >= t ? 255 : 0;
+	      imageBuffer.data[i + 1] = val >= t ? 255 : 0;
+	      imageBuffer.data[i + 2] = val >= t ? 255 : 0;
+	      }
+	    */
+	    
+	    ctxCanvasGrayImage.putImageData(imageBuffer, 0, 0);
+	    const grayHist = getHistValuesFromImageData(imageBuffer.data);
+	    renderImageValueOnTable(elTBodyValueInputImageGray, imageBuffer.data, 0, width, height, "Gray");
+	    renderHistogramOnCanvas(ctxCanvasHistogramImageGray, grayHist[0]);
+	    
+	}
+    }
+    
+    function calcMean(row, col, m, n, pixelData, width, height) {
+	function offset(val) {
+	    return Math.floor(val * 0.5);
+	}
+	let buffer = new Array();
+	// @Note: -1 array index is starting from zero
+	for (let i = row - offset(m);i <= row + offset(m);++i) {
+	    for (let j = col - offset(n);j <= col + offset(n);++j) {
+		if ((i < 0 || j < 0) || (i >= height || j >= width)) {
+		    // @Note: this is like a zero padding
+		    buffer.push(0);
+		} else {
+		    const index = j * 4 + (i * width * 4);
+		    buffer.push(pixelData[index]);
+		}
+	    }
+	}
+	
+	let sum = 0;
+	buffer.forEach((item) => {
+	    sum += item;
+	});
+	
+	return sum / (m * n);
+    }
+    
+     calcMedian
+    (row, col, m, n, pixelData, width, height) {
+	function offset(val) {
+	    return Math.floor(val * 0.5);
+	}
+	let buffer = new Array();
+	// @Note: -1 array index is starting from zero
+	for (let i = row - offset(m);i <= row + offset(m);++i) {
+	    for (let j = col - offset(n);j <= col + offset(n);++j) {
+		if ((i < 0 || j < 0) || (i > height || j > width)) {
+		    // @Note: this is like a zero padding
+		    buffer.push(0);
+		} else {
+		    const index = j * 4 + (i * width * 4);
+		    buffer.push(pixelData[index]);
+		}
+	    }
+	}
+	
+	buffer.sort((a, b) => { return a - b; });
+	const medPos = (m * n + 1) / 2;
+	return buffer[medPos - 1];
+    }
+    
+    
+    function handleButtonShowHideGrayImage() {
+	const state = elButtonShowOrHideTableGrayImage.innerHTML;
+	
+	if (state == "Tampilkan") {
+	    elTBodyValueInputImageGray.parentElement.style.display = "table";
+	} else {
+	    elTBodyValueInputImageGray.parentElement.style.display = "none";
+	}
+	
+	elButtonShowOrHideTableGrayImage.innerHTML = state == "Tampilkan" ? "Sembunyikan" : "Tampilkan"; 
+    }
+    
+    function handleButtonShowHideRTableInputImage() {
+	const state = elButtonShowOrHideRTableInputImage.innerHTML;
+	
+	if (state == "Tampilkan") {
+	    elTBodyValueInputImageR.parentElement.style.display = "table";
+	} else {
+	    elTBodyValueInputImageR.parentElement.style.display = "none";
+	}
+	
+	elButtonShowOrHideRTableInputImage.innerHTML = state == "Tampilkan" ? "Sembunyikan" : "Tampilkan"; 
+    }
+    
+    function handleButtonShowHideGTableInputImage() {
+	const state = elButtonShowOrHideGTableInputImage.innerHTML;
+	
+	if (state == "Tampilkan") {
+	    elTBodyValueInputImageG.parentElement.style.display = "table";
+	} else {
+	    elTBodyValueInputImageG.parentElement.style.display = "none";
+	}
+	
+	elButtonShowOrHideGTableInputImage.innerHTML = state == "Tampilkan" ? "Sembunyikan" : "Tampilkan"; 
+    }
+    
+    function handleButtonShowHideBTableInputImage() {
+	const state = elButtonShowOrHideBTableInputImage.innerHTML;
+	
+	if (state == "Tampilkan") {
+	    elTBodyValueInputImageB.parentElement.style.display = "table";
+	} else {
+	    elTBodyValueInputImageB.parentElement.style.display = "none";
+	}
+	
+	elButtonShowOrHideBTableInputImage.innerHTML = state == "Tampilkan" ? "Sembunyikan" : "Tampilkan"; 
+    }
+    
+    function getHistValuesFromImageData(data) {
+	let rTable = new Array(256).fill(0);
+	let gTable = new Array(256).fill(0);
+	let bTable = new Array(256).fill(0);
+	
+	for (let i = 0;i < data.length;i+=4) {
+	    const r = data[i + 0];
+	    const g = data[i + 1];
+	    const b = data[i + 2];
+	    
+	    ++rTable[r];
+	    ++gTable[g];
+	    ++bTable[b];
+	}
+	
+	return [
+	    rTable,
+	    gTable,
+	    bTable,
+	];
+    }
+    
+    function renderHistogramOnCanvas(ctxCanvas, histValues) {
+	function getMaxValueFromHistValues(histVals) {
+	    let max = 0;
+	    for (let i = 0;i < histVals.length;++i) {
+		const val = histVals[i];
+		if (val > max) {
+		    max = val;
+		}
+	    }
+	    return max;
+	}
+	
+	let height = 250;
+	let width = 560;
+	
+	const marginBottom = 24;
+	const marginLeft = 36;
+	const fontPx = 12;
+	const availableSpaceAdder = 32;
+	
+	ctxCanvas.lineWidth = 1;
+	ctxCanvas.strokeStyle = "black";
+	ctxCanvas.font = "12px 'Computer Modern Serif'";
+	ctxCanvas.moveTo(marginLeft, 0);
+	ctxCanvas.lineTo(marginLeft, height - marginBottom + availableSpaceAdder);
+	ctxCanvas.lineTo(width - 2, height - marginBottom + availableSpaceAdder);
+	
+	const maxValue = getMaxValueFromHistValues(histValues);
+	const lineValueCount = 6;
+	const aspect = height / maxValue;
+	
+	for (let i = 0;i < lineValueCount;++i) {
+	    const v = (i * (maxValue / (lineValueCount  - 1))).toFixed(1);
+	    const y = height - (marginBottom - 5  + (v * aspect));
+	    ctxCanvas.fillText(`${v}`, 0, y + availableSpaceAdder);
+	}
+	
+	
+	for (let index = 0;index < 256;++index) {
+	    let value = histValues[index];
+	    
+	    ctxCanvas.moveTo(8 + marginLeft + 2 * index, height - marginBottom + availableSpaceAdder);
+	    ctxCanvas.lineTo(8 + marginLeft + 2 * index, height - marginBottom - (value * aspect) + availableSpaceAdder);
+	    
+	    if (index % 50 == 0) {
+		const val = `${index}`;
+		ctxCanvas.fillText(val, 8 + marginLeft + 2 * index - (val.length * fontPx * 0.5) / 2, height - 4 + availableSpaceAdder);
+	    }
+	}
+	
+	ctxCanvas.stroke();
+    }
+    
+    
+    function renderImageValueOnTable(elTable, data, indexOffset, width, height, topLeftText = "") {
+	let cValue = "";
+	
+	for (let row = 0;row < height;++row) {
+	    cValue += "<tr>";
+	    
+	    if (row === 0) {
+		cValue += `<td>${topLeftText}</td>`;
+		for (let col = 0;col < width;++col) {
+		    cValue += `<td>${col}</td>`;
+		}
+		cValue += `</tr><tr>`;
+	    }
+	    
+	    cValue += `<td>${row}</td>`;
+	    
+	    for (let col = 0;col < width;++col) {
+		const index = col * 4 + (row * width * 4);
+		const c = data[index + indexOffset];
+		cValue += `<td>${c}</td>`;
+	    }
+	    cValue += "</tr>";
+	}
+	
+	elTable.innerHTML = cValue;
+    }
+};

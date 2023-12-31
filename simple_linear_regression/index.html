@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Simple Linear Regression</title>
+  <link rel="stylesheet" href="./cmu-serif-font/cmun-serif.css">
+	<link rel="icon" href="./favicon.ico" type="image/x-icon">
+  <link rel="stylesheet" href="style.css">
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+  <script src="./ploter.js"></script>
+  <script src="./index.js"></script>
+</head>
+<body>
+  <h1>Simple Linear Regression</h1>
+
+  <strong>This software is not tested yet, this maybe given a wrong result</strong>
+
+  <div class="">
+    <h2>Input Data</h2>
+    <div">
+      <table>
+        <thead>
+          <tr>
+            <td><strong>No</strong></td>
+            <td><strong>X</strong></td>
+            <td><strong>Y</strong></td>
+            <td><strong>Action</strong></td>
+          </tr>
+        </thead>
+        <tbody id="table_body_input">         
+        </tbody>
+      </table>
+      
+      <button style="margin-top: 1rem;">Upload from CSV</button>
+    </div>
+  </div>
+
+  <br>
+
+  <div class="">
+    <h2>Output Data</h2>
+    <div">
+      <table>
+        <thead>
+          <tr>
+            <td><strong>No</strong></td>
+            <td><strong>X</strong></td>
+            <td><strong>Y</strong></td>
+            <td><strong>X<sup>2</sup></strong></td>
+            <td><strong>Y<sup>2</sup></strong></td>
+            <td><strong>XY</strong>
+          </tr>
+        </thead>
+        <tbody id="table_body_helping_output">         
+        </tbody>
+      </table>
+      <button style="margin-top: 1rem;">Download to CSV</button>
+    </div>
+  </div>
+
+  <br>
+
+  <div class="">
+    <h2>Ouput Calculation</h2>
+    <h3>Formula</h3>
+
+    <p>$$\begin{aligned}\hat{Y} & = a + bX
+    \\ \\ a & = \frac{(\sum{} Y_{i})(\sum{} Xi^{2})-(\sum{} X_{i})(\sum{} X_{i}Y_{i})}{n \sum{} X_{i}^2 - (\sum{} X_{i} )^2}
+    \\ \\ b & = \frac{n (\sum{} X_{i} Y_{i}) - (\sum{} X_{i}) (\sum{} Y_{i})}{n \sum{} X_{i}^2 - (\sum{} X_{i})^2} \end{aligned}$$</p>
+  
+    <h3>Evaluation</h3>
+    <p id="output_formula_a_calculation"></p>
+  </div>
+
+  <br>
+
+  <div>
+    <h2>Ploting Data</h2>
+    <div class="border-container">
+      <div>
+        <canvas id="ploting_canvas" width="720" height="720"></canvas>
+      </div>
+    </div>
+  </div>
+  </script>
+
+</body>
+</html>
