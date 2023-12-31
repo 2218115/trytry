@@ -7,7 +7,7 @@ window.onload = async () => {
 
   // sound
   // this maybe not best solution to playing sound
-  // another soulition that better maybe is using a WEB Audio Api
+  // another solution that better maybe is using a WEB Audio Api
   const shoot_sound = new Audio("./sound/shoot.wav");
   const enemy_shoot_sound = new Audio("./sound/enemy_shoot.wav");
   const back_sound = new Audio("./sound/back.wav");
@@ -18,7 +18,6 @@ window.onload = async () => {
 
   back_sound.loop = true;
 
-
   let can_special_shoot = false;
 
   let is_playing = false;
@@ -28,7 +27,9 @@ window.onload = async () => {
   let ls_player_point = -1;
   let player_life = 10;
   let ls_player_life = -1;
-  let rainbow_power = 0;
+  let rainbow_power = 10;
+  let rainbow_counter = 0;
+  const rainbow_add_time = 2;
 
   let player_color = 0xff000000;
   let enemy_color = 0x00ff00ff;
@@ -122,8 +123,15 @@ window.onload = async () => {
   }
 
   function on_rainbow_power_change() {
+    if (rainbow_power <= 3) {
+      rainbow_counter = 0;
+      document.getElementById("rainbow_power").parentElement.classList.add("animated");
+    } else {
+      document.getElementById("rainbow_power").parentElement.classList.remove("animated");
+    }
     document.getElementById("rainbow_power").innerHTML = `${rainbow_power}`;
   }
+  on_rainbow_power_change();
 
   function on_player_life_change() {
     // hacky
@@ -522,8 +530,12 @@ window.onload = async () => {
           special_shoot_sound.play();
           //noise.play();
         } else {
-          add_bullets(player.pos.x, player.pos.y, nx * 700 + (rainbow_power * 10), ny * 700 + (rainbow_power * 10), 1 + (rainbow_power * 0.1), PLAYER_BULLET);
-          shoot_sound.play();
+          if (rainbow_power > 0) {
+            add_bullets(player.pos.x, player.pos.y, nx * 700 + (rainbow_power * 10), ny * 700 + (rainbow_power * 10), 1 + (rainbow_power * 0.1), PLAYER_BULLET);
+            shoot_sound.play();
+            rainbow_power--;
+            on_rainbow_power_change();
+          }
           //noise.play();
         }
 
@@ -532,6 +544,16 @@ window.onload = async () => {
         action_shoot = false;
         // cam_scale_x = Math.round(1 + Math.random());
         // cam_scale_y = cam_scale_x;
+      }
+
+      if (rainbow_power <= 3) {
+        rainbow_counter += 1 * dt;
+        if (rainbow_counter >= rainbow_add_time) {
+          rainbow_power++;
+          on_rainbow_power_change();
+          rainbow_counter = 0;
+        }
+
       }
 
       if (acceleration.x != 0 && acceleration.y != 0) {
