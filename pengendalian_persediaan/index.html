@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pengendalian Persediaan</title>
+    <script src="./index.js"></script>
+    <link rel="stylesheet" href="./cmu-serif-font/cmun-serif.css">
+    <style>
+        * {
+            font-family: 'Computer Modern Serif';
+        }
+
+        body {
+            padding: 2rem;
+        }
+
+        .text-input {
+            padding: 0.4rem 0.5rem 0.4rem 0.5rem;
+            border-radius: 4px;
+            font-size: large;
+        }
+
+        .text-input-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+            font-size: larger;
+        }
+
+        .input-container {
+            margin-bottom: 1rem;
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        select {
+            padding: 0.4rem 0.5rem 0.4rem 0.5rem;
+            border-radius: 4px;
+            font-size: large;
+        }
+
+        option {
+            font-size: large;
+        }
+
+        .result-label {
+            font-size: large;
+        }
+
+        .simple-button {
+            font-size: large;
+            padding: 0.4rem 0.5rem 0.4rem 0.5rem;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Pengendalian Persediaan</h1>
+
+    <form id="form_input">
+        <div class="input-container">
+            <div>
+                <label for="input_kebutuhan" class="text-input-label">Kebutuhan</label>
+                <input type="text" name="kebutuhan" id="input_kebutuhan" class="text-input">
+                <div id="input_kebutuhan_error_message" style="display: none; color: red;">Masukan tidak valid</div>
+            </div>
+            <div>
+                <label for="lama_kebutuhan" class="text-input-label">Selama</label>
+                <select name="lama kebutuhan" id="lama_kebutuhan">
+                    <option value="Hari">1 Hari</option>
+                    <option value="Bulan">1 Bulan</option>
+                    <option value="Tahun">1 Tahun</option>
+                </select>
+            </div>
+            <div>
+                <label for="input_kebutuhan_result" class="text-input-label">--</label>
+                <input type="text" name="kebutuhan result" id="input_kebutuhan_result" class="text-input" disabled
+                    value="-">
+            </div>
+        </div>
+
+        <div class="input-container">
+            <div>
+                <label for="input_harga_bahan_baku" class="text-input-label">Harga bahan baku</label>
+                <input type="text" name="bahan baku" id="input_harga_bahan_baku" class="text-input">
+                <div id="input_harga_bahan_baku_error_message" style="display: none; color: red;">Masukan tidak valid
+                </div>
+            </div>
+        </div>
+
+
+        <div class="input-container">
+            <div>
+                <label for="input_biaya_pesan" class="text-input-label">Biaya Pesan</label>
+                <input type="text" name="biaya pesan" id="input_biaya_pesan" class="text-input">
+                <div id="input_biaya_pesan_error_message" style="display: none; color: red;">Masukan tidak valid
+                </div>
+            </div>
+        </div>
+
+        <div class="input-container">
+            <div>
+                <label for="input_biaya_simpan" class="text-input-label">Biaya Simpan</label>
+                <input type="text" name="biaya simpan" id="input_biaya_simpan" class="text-input">
+                <div id="input_biaya_simpan_error_message" style="display: none; color: red;">Masukan tidak valid
+                </div>
+            </div>
+            <div>
+                <label for="unit_biaya_simpan" class="text-input-label">Per</label>
+                <select name="per biaya simpan" id="unit_biaya_simpan">
+                    <option value="Unit">Unit</option>
+                    <option value="Rata-rata persediaan">Rata-rata persediaan</option>
+                </select>
+            </div>
+            <div>
+                <label for="biaya_simpan_result" class="text-input-label">--</label>
+                <input type="text" name="biaya simpan" id="biaya_simpan_result" class="text-input" disabled value="-">
+            </div>
+        </div>
+
+        <div class="input-container">
+            <div>
+                <label for="input_safety_stock" class="text-input-label">Stok aman <i>Safety stock</i></label>
+                <input type="text" name="waktu tunggu" id="input_safety_stock" class="text-input">
+                <div id="input_safety_stock_error_message" style="display: none; color: red;">Masukan tidak valid
+                </div>
+            </div>
+        </div>
+
+        <div class="input-container">
+            <div>
+                <label for="input_lead_time" class="text-input-label">Waktu tunggu <i>Lead time</i></label>
+                <input type="text" name="waktu tunggu" id="input_lead_time" class="text-input">
+                <div id="input_lead_time_error_message" style="display: none; color: red;">Masukan tidak valid
+                </div>
+            </div>
+            <div>
+                <label for="lead_time_unit" class="text-input-label">Satuan</label>
+                <select name="waktu tunggu" id="lead_time_unit">
+                    <option value="Hari">Hari</option>
+                    <option value="Bulan">Bulan</option>
+                </select>
+            </div>
+            <div>
+                <label for="lead_time_result" class="text-input-label">--</label>
+                <input type="text" name="waktu tunggu" id="lead_time_result" class="text-input" disabled value="-">
+            </div>
+        </div>
+
+        <div class="input-container">
+            <button type="submit" class="simple-button" id="button_hitung">Hitung</button>
+        </div>
+    </form>
+
+    <br>
+
+    <h2>Evaluasi Perhitungan</h2>
+
+    <pre id="eval_result" style="font-size: 1.2rem;">
+    </pre>
+
+
+    <br>
+    <br>
+    <h2>Grafik Hubungan ROP, Safety Stock, dan Lead Time</h2>
+    <canvas id="graph_canvas" style="border: 1px solid rgb(219, 219, 219); border-radius: 4px;" width="800px"
+        height="500px" />
+</body>
+
+</html>
