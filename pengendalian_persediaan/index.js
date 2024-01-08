@@ -166,7 +166,7 @@ window.onload = () => {
 
     function eval_sqrt_for_eoq() {
         if (unit_biaya_simpan === "Unit") {
-            return (2 * R_per_tahun(input_kebutuhan_selama)() * input_biaya_pesan) / (input_biaya_simpan);
+            return (2 * R_per_tahun(input_kebutuhan_selama) * input_biaya_pesan) / (input_biaya_simpan);
         } else {
             return (2 * R_per_tahun(input_kebutuhan_selama) * input_biaya_pesan) / (input_harga_bahan * (input_biaya_simpan / 100));
         }
