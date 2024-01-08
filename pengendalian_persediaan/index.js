@@ -49,7 +49,6 @@ window.onload = () => {
         hitunged = true;
 
         eval_calculation();
-        update_calculation();
     }
 
     el_input_kebutuhan.onkeyup = (e) => {
@@ -259,14 +258,7 @@ ${unit_biaya_simpan === "Unit" ? `C = ${input_biaya_simpan} Per Unit` : `I = ${i
         render_graph();
     }
 
-    function update_calculation() {
-        // hitung eoq
-        const eoq = Math.sqrt((2 * input_kebutuhan * input_biaya_pesan) / (input_harga_bahan * (input_biaya_simpan / 100)));
-        console.log(eoq);
-    }
-
     // canvas_graph rendering
-
     function render_graph() {
 
 
