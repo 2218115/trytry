@@ -217,43 +217,59 @@ window.onload = () => {
         }
 
         function eval_buffer_append_for_eoq() {
-            if (unit_biaya_simpan === "Unit") {
-                eval_buffer += `
-EOQ = akar((2 * R * O) / (C))
-EOQ = akar((2 * ${R_per_tahun(input_kebutuhan_selama).toLocaleString()} * ${input_biaya_pesan.toLocaleString()}) / (${input_biaya_simpan.toLocaleString()})) = akar(${eval_sqrt_for_eoq().toLocaleString()}) = ${eval_result_for_eoq().toLocaleString()}            
-    `;
-            } else {
-                eval_buffer += `
-EOQ = akar((2 * R * O) / (P * I))
-EOQ = akar((2 * ${R_per_tahun(input_kebutuhan_selama).toLocaleString()} * ${input_biaya_pesan.toLocaleString()}) / (${input_harga_bahan.toLocaleString()} * ${(input_biaya_simpan.toLocaleString())}%)) = akar(${eval_sqrt_for_eoq().toLocaleString()}) = ${eval_result_for_eoq().toLocaleString()}            
-                   
-
-Lead Time = Waktu Tunggu * Penggunaan Unit Barang Per Bulan
-Lead Time = ${unit_waktu_tunggu == "Hari" ? `(${waktu_tunggu} Hari >> ${Lead_Time_per_bulan()} Bulan) * ${R_per_bulan(input_kebutuhan_selama)}` : `${Lead_Time_per_bulan()} Bulan * ${R_per_bulan(input_kebutuhan_selama)}`}
-
-ROP = Safety Stock + Lead Time
-ROP = ${safety_stock} + ${eval_result_for_barang_unit_lead_time(waktu_tunggu)}
-ROP = ${eval_result_for_rop()}
-`;
-            }
 
 
+            eval_buffer += `\\end{aligned} $$`;
         }
 
         let eval_buffer = "";
 
         eval_buffer = `
-Diketahui
+            $$\\begin{aligned}
+            \\\\&Diketahui
+            \\\\& R = ${input_kebutuhan} \\text{ ${kebutuhan_selama(input_kebutuhan_selama)}}
+            \\\\&O = ${input_biaya_pesan}
+            \\\\&P = ${input_harga_bahan}
+            \\\\&${unit_biaya_simpan === "Unit" ? `C = \\text{${input_biaya_simpan} Per Unit}` : `I = \\text{${input_biaya_simpan}% Per Persediaan}`}
+        `;
 
-R = ${input_kebutuhan} ${kebutuhan_selama(input_kebutuhan_selama)}
-O = ${input_biaya_pesan}
-P = ${input_harga_bahan}
-${unit_biaya_simpan === "Unit" ? `C = ${input_biaya_simpan} Per Unit` : `I = ${input_biaya_simpan}% Per Persediaan`}
-`;
-        eval_buffer_append_for_eoq();
+        if (unit_biaya_simpan === "Unit") {
+            eval_buffer += `
+                \\\\
+                \\\\& EOQ = \\sqrt{\\frac{2 * R * O}{C}}
+                \\\\& EOQ = \\sqrt{\\frac{2 * ${R_per_tahun(input_kebutuhan_selama).toLocaleString()} * ${input_biaya_pesan.toLocaleString()}}{${input_biaya_simpan.toLocaleString()}}}
+                \\\\& EOQ = \\sqrt{${eval_sqrt_for_eoq().toLocaleString()}}
+                \\\\
+                \\\\& EOQ = ${eval_result_for_eoq().toLocaleString()}
+                \\\\
+                `;
+        } else {
+            eval_buffer += `
+            \\\\
+            \\\\& EOQ = \\sqrt{\\frac{2 * R * O}{P * I}}
+            \\\\& EOQ = \\sqrt{\\frac{2 * ${R_per_tahun(input_kebutuhan_selama).toLocaleString()} * ${input_harga_bahan.toLocaleString()}${input_biaya_pesan.toLocaleString()}}{${input_harga_bahan.toLocaleString()} * ${input_biaya_simpan.toLocaleString()}\\text{%}}}
+            \\\\& EOQ = \\sqrt{${eval_sqrt_for_eoq().toLocaleString()}}
+            \\\\
+            \\\\& EOQ = ${eval_result_for_eoq().toLocaleString()}
+            \\\\
+            `;
+        }
+
+        eval_buffer += `
+            \\\\&Lead Time = \\text{Waktu Tunggu * Penggunaan Unit Barang Per Bulan}
+            \\\\&Lead Time = \\text{${unit_waktu_tunggu == "Hari" ? `(${waktu_tunggu} Hari >> ${Lead_Time_per_bulan()} Bulan) * ${R_per_bulan(input_kebutuhan_selama)}` : `${Lead_Time_per_bulan()} Bulan * ${R_per_bulan(input_kebutuhan_selama)}`}}
+
+            \\\\&ROP = \\text{Safety Stock + Lead Time}
+            \\\\&ROP = ${safety_stock} + ${eval_result_for_barang_unit_lead_time(waktu_tunggu)}
+            \\\\&ROP = ${eval_result_for_rop()}
+        `;
+
+        // end
+        eval_buffer += `\\end{aligned} $$`;
 
         el_eval_result.innerHTML = eval_buffer;
 
+        MathJax.typeset();
 
         render_graph();
     }
