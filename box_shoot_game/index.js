@@ -316,11 +316,11 @@ window.onload = async () => {
           add_particles(b.x, b.y, 0, 0, 0.2, enemy_color & ~(0xff));
         }
 
-        if (b.x < 0 || b.x > width) {
+        if (b.x < 0 || b.x > (width - 24)) {
           b.vx = -b.vx;
         }
 
-        if (b.y < 0 || b.y > height) {
+        if (b.y < 0 || b.y > (height - 24)) {
           b.vy = -b.vy;
         }
 
@@ -371,11 +371,11 @@ window.onload = async () => {
         e.x += e.vx * dt;
         e.y += e.vy * dt;
 
-        if (e.x > width || e.x < 0) {
+        if (e.x > (width - 48) || e.x < 0) {
           e.vx = -e.vx;
         }
 
-        if (e.y > height || e.y < 0) {
+        if (e.y > (height - 48) || e.y < 0) {
           e.vy = -e.vy;
         }
 
@@ -624,25 +624,25 @@ window.onload = async () => {
       player.velocity = v2_add(v2_scalar_mul(acceleration, dt), player.velocity);
       let new_player_p = v2_add(v2_add(v2_scalar_mul(v2_scalar_mul(acceleration, 0.5), (dt * dt)), player.velocity), player.pos);
 
-      if (player.pos.y > (height - 64)) {
+      if (player.pos.y > (height - 32)) {
         player.velocity.y = -player.velocity.y;
         new_player_p.y = player.pos.y - 8;
         shake_camera("y", 10);
       }
 
-      if (player.pos.y < 32) {
+      if (player.pos.y < 0) {
         player.velocity.y = -player.velocity.y;
         new_player_p.y = player.pos.y + 8;
         shake_camera("y", 10);
       }
 
-      if (player.pos.x > width - 64) {
+      if (player.pos.x > width - 32) {
         player.velocity.x = -player.velocity.x;
         new_player_p.x = player.pos.x - 8;
         shake_camera("x", 10);
       }
 
-      if (player.pos.x < 32) {
+      if (player.pos.x < 0) {
         player.velocity.x = -player.velocity.x;
         new_player_p.x = player.pos.x + 8;
         shake_camera("x", 10);
