@@ -45,6 +45,8 @@ window.onload = async () => {
   let action_down = false;
   let action_shoot = false;
 
+  let draw_fps = true;
+
   let prev_timestamp = null;
 
   // saving index of enemy
@@ -195,6 +197,11 @@ window.onload = async () => {
     if (e.key === 'd') {
       action_right = true;
     }
+
+    if (e.key === 'f') {
+      draw_fps = !draw_fps;
+    }
+
   }
 
   window.onkeyup = (e) => {
@@ -213,6 +220,7 @@ window.onload = async () => {
     if (e.key === 'd') {
       action_right = false;
     }
+
   }
 
   let player = {
@@ -230,6 +238,13 @@ window.onload = async () => {
     return {
       x: input.x * scalar,
       y: input.y * scalar,
+    }
+  }
+
+  function v2_add(a, b) {
+    return {
+      x: a.x + b.x,
+      y: a.y + b.y,
     }
   }
 
@@ -374,8 +389,7 @@ window.onload = async () => {
             enemy_shoot_sound.play();
 
             // shake camera
-            cam_offset_x = Math.round(-8 + Math.random() * 16);
-            cam_offset_y = Math.round(-8 + Math.random() * 16);
+            shake_camera();
           }
         }
       }
@@ -481,18 +495,40 @@ window.onload = async () => {
   // variable
   let cam_scale_y = 1;
   let cam_scale_x = 1;
+
   let cam_offset_x = 0;
   let cam_offset_y = 0;
+
+  let cam_p_x = 0;
+  let cam_p_y = 0;
+  let cam_dp_x = 0;
+  let cam_dp_y = 0;
+  let cam_dpp_x = 0;
+  let cam_dpp_y = 0;
+  let cam_shake_timer_counter = 0;
+  const cam_shake_duration = 0.3;
+  let cam_is_shaking = false;
+
+  function shake_camera(only = "all", power = 50) {
+    cam_is_shaking = true;
+    cam_shake_timer_counter = 0;
+    if (only == "all") {
+      cam_dpp_x = Math.random() * power;
+      cam_dpp_y = Math.random() * power;
+    } else if (only == "x") {
+      cam_dpp_x = Math.random() * power;
+    } else if (only == "y") {
+      cam_dpp_y = Math.random() * power;
+    }
+  }
 
   const spawn_time_interval = 3;
   let timer_counter = spawn_time_interval;
 
   let init = false;
 
-
   function update_and_render(dt) {
     if (is_playing) {
-
       // input
       let acceleration = { x: 0, y: 0 };
 
@@ -557,7 +593,7 @@ window.onload = async () => {
       }
 
       if (acceleration.x != 0 && acceleration.y != 0) {
-        acceleration = v2_scalar_mul(acceleration, Math.sqrt(0.5));
+        acceleration = v2_scalar_mul(acceleration, 0.7071067811865475);
         add_particles(player.pos.x, player.pos.y, Math.sin(Math.random() * Math.PI) * 100, Math.sin(Math.random() * Math.PI) * 100, 0.5, player_color);
       }
 
@@ -572,34 +608,44 @@ window.onload = async () => {
         timer_counter = 0;
       }
 
+      // @Hacking
+      acceleration = v2_scalar_mul(acceleration, 10);
+
       // update
-      player.pos.x += acceleration.x;
-      player.pos.y += acceleration.y;
+      acceleration = v2_add(v2_scalar_mul(player.velocity, -5), acceleration);
+      player.velocity = v2_add(v2_scalar_mul(acceleration, dt), player.velocity);
+      let new_player_p = v2_add(v2_add(v2_scalar_mul(v2_scalar_mul(acceleration, 0.5), (dt * dt)), player.velocity), player.pos);
+
+      if (player.pos.y > (height - 64)) {
+        player.velocity.y = -player.velocity.y;
+        new_player_p.y = player.pos.y - 8;
+        shake_camera("y", 10);
+      }
+
+      if (player.pos.y < 32) {
+        player.velocity.y = -player.velocity.y;
+        new_player_p.y = player.pos.y + 8;
+        shake_camera("y", 10);
+      }
+
+      if (player.pos.x > width - 64) {
+        player.velocity.x = -player.velocity.x;
+        new_player_p.x = player.pos.x - 8;
+        shake_camera("x", 10);
+      }
+
+      if (player.pos.x < 32) {
+        player.velocity.x = -player.velocity.x;
+        new_player_p.x = player.pos.x + 8;
+        shake_camera("x", 10);
+      }
+
+      player.pos = new_player_p;
+
       update_bullets(dt);
       update_enemies(dt);
       update_particles(dt);
       update_rainbow_boxs(dt);
-
-      if (cam_scale_x > 1) {
-        cam_scale_x -= 1 * dt;
-      }
-      if (cam_scale_y > 1) {
-        cam_scale_y -= 1 * dt;
-      }
-
-      if (cam_offset_x > 0) {
-        cam_offset_x += -2 * dt;
-      }
-      if (cam_offset_x < 0) {
-        cam_offset_x += 2 * dt;
-      }
-
-      if (cam_offset_y > 0) {
-        cam_offset_y += -2 * dt;
-      }
-      if (cam_offset_y < 0) {
-        cam_offset_y += 2 * dt;
-      }
 
       // collision player with box rainbow_boxs
       for (let i = 0; i < rainbow_boxs.length; ++i) {
@@ -613,12 +659,11 @@ window.onload = async () => {
             rainbow_power++;
             on_rainbow_power_change();
             for (let i = 0; i < Math.PI * 2; i += 0.5) {
-              add_particles(rb.x, rb.y, Math.cos(i) * 200, Math.sin(i) * 200, 1, player_color);
+              add_particles(rb.x, rb.y, Math.cos(i) * 200, Math.sin(i) * 200, rb.life_span / 5, player_color);
             }
 
             // shake camera
-            cam_offset_x = Math.round(-16 + Math.random() * 32);
-            cam_offset_y = Math.round(-16 + Math.random() * 32);
+            shake_camera();
 
             power_up_sound.play();
           }
@@ -633,8 +678,7 @@ window.onload = async () => {
             e.life = false;
 
             // shake camera
-            cam_offset_x = Math.round(-8 + Math.random() * 16);
-            cam_offset_y = Math.round(-8 + Math.random() * 16);
+            shake_camera();
 
             if (enemy_can_shoot == i) {
               player_life -= 2; // minus 2 if player intersect with bullet that can shoot
@@ -661,8 +705,8 @@ window.onload = async () => {
           if (aabb_is_collide(player.pos, { x: 32, y: 32 }, b, { x: bw, y: bh })) {
             bullets[i].life = false;
 
-            cam_offset_x = Math.round(-8 + Math.random() * 16);
-            cam_offset_y = Math.round(-8 + Math.random() * 16);
+            // shake camera
+            shake_camera();
 
             for (let i = 0; i < Math.PI * 2; i += 0.5) {
               add_particles(player.pos.x, player.pos.y, Math.cos(i) * 100, Math.sin(i) * 100, 1, player_color);
@@ -675,7 +719,6 @@ window.onload = async () => {
           }
         }
       }
-
 
       // collision player_bullet with enemy
       for (let i = 0; i < bullets.length; ++i) {
@@ -696,8 +739,8 @@ window.onload = async () => {
                   bullets[i].life = false;
                 }
 
-                cam_offset_x = Math.round(-8 + Math.random() * 16);
-                cam_offset_y = Math.round(-8 + Math.random() * 16);
+                // shake camera
+                shake_camera();
 
                 if (enemy_can_shoot == j) {
                   player_point += 2; // add 2 if player shoot bullet that can shoot
@@ -719,6 +762,8 @@ window.onload = async () => {
 
                 // playing sound
                 hit_sound.play();
+                cam_dpp_x = 50;
+
 
                 player_point++;
               }
@@ -727,6 +772,40 @@ window.onload = async () => {
         }
       }
     }
+
+    // updating camera
+    {
+      cam_dpp_x = cam_dpp_x + (cam_dp_x * -15);
+      cam_dp_x = (cam_dpp_x * dt) + cam_dp_x;
+      cam_p_x = ((cam_dpp_x * 0.5) * (dt * dt)) + cam_dp_x + cam_p_x;
+
+      cam_dpp_y = cam_dpp_y + (cam_dp_y * -15);
+      cam_dp_y = (cam_dpp_y * dt) + cam_dp_y;
+      cam_p_y = ((cam_dpp_y * 0.5) * (dt * dt)) + cam_dp_y + cam_p_y;
+
+
+      if (cam_shake_timer_counter >= cam_shake_duration) {
+        cam_is_shaking = false;
+        cam_dpp_x = 0;
+        cam_dp_x = 0
+        cam_p_x = 0;
+
+        cam_dpp_y = 0;
+        cam_dp_y = 0
+        cam_p_y = 0;
+
+        cam_shake_timer_counter = 0;
+      }
+
+      if (cam_is_shaking) {
+        cam_shake_timer_counter += (1 * dt);
+      }
+    }
+
+    // @Cleanup
+    // cam offset x and y in updating game
+    cam_offset_y = 25 - cam_p_y;
+    cam_offset_x = 25 - cam_p_x;
 
     // render
     draw_rect(imageData.data, 0, 0, width, height, 0xffffffff);
@@ -741,7 +820,7 @@ window.onload = async () => {
     for (let i = 0; i < rainbow_boxs.length; ++i) {
       const rb = rainbow_boxs[i];
       if (rb.life === true) {
-        draw_gradien_rect(imageData.data, cam_offset_x + rb.x - (32 * cam_scale_x), cam_offset_y + rb.y - (32 * cam_scale_y), 64 * cam_scale_x, 64 * cam_scale_y);
+        draw_gradien_rect(imageData.data, cam_offset_x + rb.x - (32 * cam_scale_x), cam_offset_y + rb.y - (32 * cam_scale_y), 64 * cam_scale_x, 64 * cam_scale_y, enemy_color, 0xeeeeeeff, Math.round(lerp(rb.life_span / 5, 0, 255)));
       }
     }
 
@@ -772,6 +851,12 @@ window.onload = async () => {
 
     draw_rect(imageData.data, cam_offset_x + player.pos.x - 16 * cam_scale_x, cam_offset_y + player.pos.y - 16 * cam_scale_y, 32 * cam_scale_x, 32 * cam_scale_y, player_color | 0xff);
     ctx.putImageData(imageData, 0, 0);
+
+    if (draw_fps == true) {
+      ctx.font = "28px 'Courier New'";
+      const fps = `fps: ${Math.round((dt * 60) * 60)}`;
+      ctx.fillText(fps, 12, 28);
+    }
 
     if (player_life != ls_player_life) {
       ls_player_life = player_life;
@@ -809,25 +894,31 @@ window.onload = async () => {
     }
   }
 
-  function draw_gradien_rect(data, x, y, w, h) {
+  function lerp(t, a, b) {
+    return (t * b) + ((1 - t) * a);
+  }
+
+  function draw_gradien_rect(data, x, y, w, h, start_color, end_color = 0xffffffff, alpha = 255) {
     const x0 = clamp(Math.round(x), 0, width);
     const y0 = clamp(Math.round(y), 0, height);
     const x1 = clamp(Math.round(x) + w, 0, width);
     const y1 = clamp(Math.round(y) + h, 0, height);
 
-    let c_x = 0;
-    let c_y = 0;
-
     for (let row = y0; row < y1; row++) {
       for (let col = x0; col < x1; ++col) {
         const index = col * 4 + (row * width * 4);
-        data[index + 0] = (enemy_color >> 24 & 0xff) | (255 - c_x) % 255;
-        data[index + 1] = (enemy_color >> 16 & 0xff) | (c_y) % 255;
-        data[index + 2] = (enemy_color >> 8 & 0xff) | (c_y) % 255;
-        data[index + 3] = 255;
 
-        c_x += 0.04;
-        c_y += 0.04;
+        const [sr, sg, sb, sa] = [(start_color >> 24) & 0xff, (start_color >> 16) & 0xff, (start_color >> 8) & 0xff, (start_color >> 0) & 0xff];
+        const [er, eg, eb, ea] = [(end_color >> 24) & 0xff, (end_color >> 16) & 0xff, (end_color >> 8) & 0xff, (end_color >> 0) & 0xff];
+
+        const r = Math.round(lerp((col - x0) / ((x1 - 1) - x0), sr, er));
+        const g = Math.round(lerp((col - x0) / ((x1 - 1) - x0), eg, sg));
+        const b = Math.round(lerp((row - y0) / ((y1 - 1) - y0), sb, eb));
+
+        data[index + 0] = r;
+        data[index + 1] = g;
+        data[index + 2] = b;
+        data[index + 3] = alpha;
       }
     }
   }
