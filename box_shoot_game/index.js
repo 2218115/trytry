@@ -9,14 +9,23 @@ window.onload = async () => {
   // this maybe not best solution to playing sound
   // another solution that better maybe is using a WEB Audio Api
   const shoot_sound = new Audio("./sound/shoot.wav");
-  const enemy_shoot_sound = new Audio("./sound/enemy_shoot.wav");
-  const back_sound = new Audio("./sound/back.wav");
-  const special_shoot_sound = new Audio("./sound/special_shoot.wav");
-  const hit_sound = new Audio("./sound/hit.wav");
-  const power_up_sound = new Audio("./sound/power_up.wav");
-  const noise = new Audio("./sound/noise.wav");
+  shoot_sound.volume = 0.75;
 
+  const enemy_shoot_sound = new Audio("./sound/enemy_shoot.wav");
+  enemy_shoot_sound.volume = 0.5;
+
+  const back_sound = new Audio("./sound/back.wav");
+  back_sound.volume = 0.5;
   back_sound.loop = true;
+
+  const special_shoot_sound = new Audio("./sound/special_shoot.wav");
+  special_shoot_sound.volume = 0.8;
+
+  const hit_sound = new Audio("./sound/hit.wav");
+  hit_sound.volume = 0.5;
+
+  const power_up_sound = new Audio("./sound/power_up.wav");
+  power_up_sound.volume = 1;
 
   let can_special_shoot = false;
 
@@ -56,7 +65,6 @@ window.onload = async () => {
 
   function on_special_shoot_change() {
     if (can_special_shoot) {
-      //console.log(can_special_shoot);
       document.getElementById("special_shoot_card").classList.add("up");
       document.getElementById("special_shoot_card").style.display = 'inline-block';
       setTimeout(() => {
@@ -812,7 +820,6 @@ window.onload = async () => {
     for (let i = 0; i < particles.length; ++i) {
       if (particles[i].life === true) {
         const c = particles[i].color | clamp(particles[i].life_span * 255, 10, 255);
-        // console.log(c);
         draw_rect(imageData.data, cam_offset_x + particles[i].x - (4 * cam_scale_x), cam_offset_y + particles[i].y - (4 * cam_scale_y), 8 * cam_scale_x, 8 * cam_scale_y, c);
       }
     }
