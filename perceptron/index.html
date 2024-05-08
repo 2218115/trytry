@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Simple Perceptron</title>
+  <link rel="stylesheet" href="./cmu-serif-font/cmun-serif.css">
+	<link rel="icon" href="./favicon.ico" type="image/x-icon">
+  <link rel="stylesheet" href="style.css">
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script>
+    MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']]
+      },
+      svg: {
+        fontCache: 'global'
+      }
+    };
+    </script>
+    <script type="text/javascript" id="MathJax-script" async
+      src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js">
+    </script>
+
+</script>
+  <script src="./index.js"></script>
+</head>
+<body>
+  <h1>Simple Perceptron</h1>
+
+  <strong>This software is not tested yet, this maybe given a wrong result</strong>
+
+    <form>
+    <h2>Nilai Awal</h2>
+      <table style="margin-top: 2rem;">
+        <tr class="table_row">
+            <td>
+                <label for="input-initial-w">$W$ (bobot awal)</label>
+            </td>
+            <td>
+                <input type="number" name="input-initial-w" id="input-initial-w" class="input-number" style="min-width: 8rem;" value="0"/>
+            </td>
+        </tr>
+        <tr class="table_row">
+            <td>
+                <label for="input-initial-b">$b$ (bias awal)</label>
+            </td>
+            <td>
+                <input type="number" name="input-initial-b" id="input-initial-b" class="input-number" style="min-width: 8rem;" value="0"/>
+            </td>
+        </tr>
+        <tr class="table_row">
+            <td>
+                <label for="input-tresh">$\theta$ (thresholding)</label>
+            </td>
+            <td>
+                <input type="number" name="input-tresh" id="input-tresh" class="input-number" style="min-width: 8rem;" value="0"/>
+            </td>
+        </tr>
+        <tr class="table_row">
+            <td>
+                <label for="input-tresh">$\alpha$ (learning rate)</label>
+            </td>
+            <td>
+                <input type="number" name="input-tresh" id="input-tresh" class="input-number" style="min-width: 8rem;" value="0"/>
+            </td>
+        </tr>
+      <table>
+  </form>
+  
+    <form>
+    <h2>Masukan & Target</h2>
+      <table>
+        <tr class="table_row">
+            <td>
+                <p>$X_1$</p>
+            </td>
+            <td>
+                <p>$X_2$</p>
+            </td>
+            <td>
+                <p>$Target$</p>
+            </td>
+            <td>
+                <p>$Action$</p>
+            </td>            
+        </tr>
+        <tr class="table_row">
+            <td>
+                <p>0</p>
+            </td>
+            <td>
+                <p>0</p>
+            </td>
+            <td>
+                <p>-1</p>
+            </td>
+            <td>
+                <p><button>+</button> <button>-</button> </p>
+            </td>            
+        </tr>
+                <tr class="table_row">
+            <td>
+                <p>0</p>
+            </td>
+            <td>
+                <p>1</p>
+            </td>
+            <td>
+                <p>-1</p>
+            </td>
+            <td>
+                <p><button>+</button> <button>-</button> </p>
+            </td>            
+        </tr>
+                <tr class="table_row">
+            <td>
+                <p>1</p>
+            </td>
+            <td>
+                <p>0</p>
+            </td>
+            <td>
+                <p>-1</p>
+            </td>
+            <td>
+                <p><button>+</button> <button>-</button> </p>
+            </td>            
+        </tr>
+        <tr class="table_row">
+            <td>
+                <p>1</p>
+            </td>
+            <td>
+                <p>1</p>
+            </td>
+            <td>
+                <p>1</p>
+            </td>
+            <td>
+                <p><button>+</button> <button>-</button> </p>
+            </td>            
+        </tr>
+      <table>
+  </form>        
+    
+    <h2>Rumus</h2>  
+  <div id="display_root">
+      <p>$net = \Sigma_{1}^n X_i W_i + b$</p>
+      <p>
+      $ 
+      y =
+        \begin{cases}
+          1, & \ net>\theta \\
+          0, & \ -\theta \leqslant net \leqslant \theta \\
+          -1, & \ net < -\theta
+        \end{cases}
+      $
+    </p>
+  </div>
+    <h2 style="">Perhitungan</h2>  
+    
+    <div id="perhitungan_results">           
+    </div>
+    
+</body>
+</html>
