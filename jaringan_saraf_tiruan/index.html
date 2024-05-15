@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    
+    <title>Jaringan Saraf Tiruan</title>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Serif:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400;1,500;1,600;1,700&display=swap');
+        
+        * {
+            box-sizing: border-box;
+            font-family: "IBM Plex Serif", serif;
+            padding: 0;
+            margin: 0;
+        }
+        
+        body {
+            padding: 2rem;
+        }
+        
+        h1 {
+            margin-bottom: 1rem;
+        }
+        
+        h2 {
+            margin-bottom: 1rem;
+        }
+        
+        p {
+            margin-top: 0.4rem;
+            margin-bottom: 2rem;
+        }
+
+        table {
+            margin: 0px;
+            margin-bottom: 2rem;            
+        }
+        
+        td, th {
+            border: 1px solid #eaeaea;
+            padding: 0.8rem;
+        }
+        
+        input, select {
+            width: 100%;
+            padding-top: 0.4rem;
+            padding-bottom: 0.4rem;
+            padding-left: 0.4rem;
+            padding-right: 0.4rem;
+        }
+        
+        select {
+            width: 100%;
+        }
+                
+        form {
+            width: fit-content; 
+            border: 1px solid #eaeaea;
+            padding: 0.8rem;
+            margin-bottom: 2rem;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 0.4rem;
+        }
+        
+        .input_group {
+            margin-bottom: 1rem;
+        }
+        
+        button {
+            width: 100%;
+            background-color: white;
+            cursor: pointer;
+            color: black;
+            border: 1px solid #eaeaea;
+            padding: 0.8rem 2rem 0.8rem 2rem;
+        }
+        
+        button:hover {        
+            background-color: black;
+            color: white;
+        }
+        
+        .caption_info {
+            color: #aeaeae;
+        }
+        
+        textarea {
+            padding: 0.4rem;
+        }
+    </style>
+    
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script>
+    MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']]
+      },
+      svg: {
+        fontCache: 'global'
+      }
+    };
+    </script>
+    <script type="text/javascript" id="MathJax-script" async
+      src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js">
+    </script>
+    
+    <script defer src="./index.js"> </script>
+    
+</head>
+
+<body>
+    <h1>Jaringan Saraf Tiruan.</h1>
+    <p>Perangakat lunak tidak/belum di test sedemikian rupa, sehingga sangat mungkin menhasilkan hasil yang tidak sesuai</p>    
+    
+    <div>
+        <h2>Masukan konfigurasi</h2>
+        <form>
+                <div class="input_group">
+                    <label> Jumlah Masukan </label>
+                    <input type="number" name="input_count" id="input_count" value="" placeholder="Masukkan jumlah input"/>
+                </div>
+
+                <div class="input_group">
+                    <label> Rule </label>                    
+                    <select id="rule_selection">
+                    </select>
+                </div>
+                
+                <div class="input_group">
+                    <label> Pembulatan </label>
+                    <label class="caption_info">Ket. ketika di masukkan 2 <br> pembulatan pada perhitungan akan di bulatkan <br> sebanyak 2 angka di belakang koma.</label>
+                    <input type="number" name="input_count" id="input_precission" value="" placeholder="Masukkan pembulatan"/>
+                </div>         
+        </form>
+    </div>
+    
+    <div>
+      <h2> Masukan Input dan Target </h2>
+      <table id="table_input_and_target">
+            <tr>
+                <th> $ X_1 $ </th>
+                <th> $ X_2 $ </th>
+                <th> $ Target $ </th>
+                <th>Aksi</th>
+            </tr>
+            <tr>
+                <td> <input type="number" value="0" /> </td>
+                <td> <input type="number" value="0" /> </td>
+                <td> <input type="number" value="0" /> </td>
+                
+                <td>
+                    <button style="width: 4rem;">+</button>
+                    <button style="width: 4rem;">-</button>
+                </td>
+            </tr>
+
+        </table>          
+    </div>
+    
+    <div>
+        <h2> Masukan nilai awal </h2>
+        <table>
+            <tr>
+                <td>
+                    $ W_1 \ (bobot 1) $
+                </td>
+                <td>
+                    <input type="number" value=""/>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    $ W_2 \ (bobot 2)$
+                </td>
+                <td>
+                    <input type="number" value=""/>
+                </td>
+            </tr>
+            
+            <tr>
+                <td>
+                    $ b \ (bias)$
+                </td>
+                <td>
+                    <input type="number" />
+                </td>
+            </tr>
+            
+            <tr>
+                <td>
+                    $ Funsgi Aktifasi $
+                </td>
+                <td>
+                    <textarea rows="4">
+0 jika net >= 0
+1 jika net <    0
+                    </textarea>
+                </td>
+            </tr>
+        </table>
+    </div>
+    
+    
+    <div>
+        <h2> Validasi Masukan</h2>
+        
+        <p>
+            $
+            
+            
+            $
+        </p>
+        
+        <button style="width: 12rem"> Proses </button>
+    </div>
+</body>
+
+</html>
