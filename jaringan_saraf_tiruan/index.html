@@ -91,6 +91,11 @@
         textarea {
             padding: 0.4rem;
         }
+        
+        .container {
+            border: 1px solid #eaeaea;
+            padding: 0.8rem;            
+        }
     </style>
     
     <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
@@ -163,44 +168,8 @@
     
     <div>
         <h2> Masukan nilai awal </h2>
-        <table>
-            <tr>
-                <td>
-                    $ W_1 \ (bobot 1) $
-                </td>
-                <td>
-                    <input type="number" value=""/>
-                </td>
-            </tr>
-            <tr>
-                <td>
-                    $ W_2 \ (bobot 2)$
-                </td>
-                <td>
-                    <input type="number" value=""/>
-                </td>
-            </tr>
-            
-            <tr>
-                <td>
-                    $ b \ (bias)$
-                </td>
-                <td>
-                    <input type="number" />
-                </td>
-            </tr>
-            
-            <tr>
-                <td>
-                    $ Funsgi Aktifasi $
-                </td>
-                <td>
-                    <textarea rows="4">
-0 jika net >= 0
-1 jika net <    0
-                    </textarea>
-                </td>
-            </tr>
+        <table id="table_initial_value">            
+
         </table>
     </div>
     
@@ -208,14 +177,23 @@
     <div>
         <h2> Validasi Masukan</h2>
         
-        <p>
+        <p id="input_reviews">
             $
             
             
             $
         </p>
         
-        <button style="width: 12rem"> Proses </button>
+        <button style="width: 12rem" id="button_process"> Proses </button>
+    </div>
+    
+    
+    <div>
+        <h2> Hasil </h2>
+        
+        <div id="result_content">
+        
+        </div>
     </div>
 </body>
 
