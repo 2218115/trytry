@@ -85,39 +85,43 @@ if (net < 0) {
     }
     
     window.on_input_change = function (row_index, input_index, value) {
-        if (value == "-") { // guard for input negative
+        if (value == "-" || value == "") { // guard for input negative
             return;
         }
         
         inputs[row_index][input_index] = parseFloat(value);
-        render_table_input_and_target();
+        //render_table_input_and_target();
+        render_input_reviews();
     }
 
     window.on_target_change = function (row_index, value) {
-        if (value == "-") { // guard for input negative
+        if (value == "-" || value == "") { // guard for input negative
             return;
         }
 
         targets[row_index] = parseFloat(value);
-        render_table_input_and_target();
+        // render_table_input_and_target();
+        render_input_reviews();
     }
     
     window.on_change_bias = function (value) {
-        if (value == "-") { // guard for input negative
+        if (value == "-" || value == "") { // guard for input negative
             return;
         }
 
         bias = parseFloat(value);
-        render_table_input_and_target();
+        // render_table_input_and_target();
+        render_input_reviews();
     }
     
     window.on_change_weight = function (input_index, value) {
-        if (value == "-") { // guard for input negative
+        if (value == "-" || value == "") { // guard for input negative
             return;
         }
 
-        weights[input_index] = value;
-        render_table_input_and_target();
+        weights[input_index] = parseFloat(value);
+        // render_table_input_and_target();
+        render_input_reviews();
     } 
     
     window.on_append_row = function (row_index) {
@@ -141,6 +145,8 @@ if (net < 0) {
         weights.push(0);
         
         render_table_input_and_target();
+        render_initial_input();
+        render_input_reviews();
     }
     
     window.on_change_activation_function = function (value) {
@@ -169,6 +175,8 @@ if (net < 0) {
             weights.pop();
             
             render_table_input_and_target();
+            render_initial_input();
+            render_input_reviews();
         }
         
         
@@ -237,6 +245,10 @@ if (net < 0) {
                 
         el_table_input_and_target.innerHTML = html;
         
+        MathJax.typeset();
+    }
+    
+    function render_initial_input() {
         // @Cleanup
         {
             let html = "";
@@ -276,8 +288,11 @@ if (net < 0) {
             `;
                         
             el_table_initial_value.innerHTML = html;            
+            MathJax.typeset();
         }
-        
+    }
+    
+    function render_input_reviews() {        
         // @Cleanup
         {
             let html = "";
@@ -366,12 +381,16 @@ if (net < 0) {
             `;
         
             input_reviews.innerHTML = html;
+            MathJax.typeset();
         }
-        
-        MathJax.typeset();
     }
     
     el_button_process.onclick = function () {
+        
+        let copy_weights = [...weights];
+        let copy_bias = bias;
+        
+        console.log({inputs, copy_weights, copy_bias, targets});
         
         try {                
             activation_function_instance = eval(`(net) => {
@@ -385,21 +404,21 @@ if (net < 0) {
             for (let row_index = 0; row_index < num_of_row_inputs; ++row_index) {
                 html += `<div class="container"> <p> $`;
                 for (let input_index = 0; input_index < num_of_inputs; ++input_index) {
-                    html += `W_${input_index + 1} = ${weights[row_index]}; `;   
+                    html += `W_${input_index + 1} = ${copy_weights[row_index]}; `;   
                 }
                 html += `y = ${targets[row_index]} \\ (target) $ </p>`;
                 
                 html += `<p> $ Perubahan \\ bobot \\ dan \\ bias \\ untuk \\ data \\ ke-${row_index + 1} \\\\ \n \\\\ \n $ </p> `;
                 
                 for (let input_index = 0; input_index < num_of_inputs; ++input_index) {
-                    const new_weight = weights[input_index] + inputs[row_index][input_index] * targets[row_index];
-                    html += `<p> $ W_${input_index + 1} \\ (baru) = W_${input_index + 1} \\ (lama) + X_${input_index + 1} * y = ${weights[input_index]} + ${inputs[row_index][input_index]} * ${targets[row_index]} = ${new_weight} $ </p>`;
-                    weights[input_index] = new_weight;
+                    const new_weight = copy_weights[input_index] + inputs[row_index][input_index] * targets[row_index];
+                    html += `<p> $ W_${input_index + 1} \\ (baru) = W_${input_index + 1} \\ (lama) + X_${input_index + 1} * y = ${copy_weights[input_index]} + ${inputs[row_index][input_index]} * ${targets[row_index]} = ${new_weight} $ </p>`;
+                    copy_weights[input_index] = new_weight;
                 }
                 
-                const new_bias = bias + targets[row_index];
-                html += `<p> $ bias \\ (baru) = ${bias} + ${targets[row_index]} = ${new_bias} $ </p>`;
-                bias = new_bias;
+                const new_bias = copy_bias + targets[row_index];
+                html += `<p> $ bias \\ (baru) = bias \\ (lama) + y = ${copy_bias} + ${targets[row_index]} = ${new_bias} $ </p>`;
+                copy_bias = new_bias;
                 
                 html += `</div>`;
             }
@@ -436,15 +455,15 @@ if (net < 0) {
                 html += `<td> $ `;
                 let sum = 0;
                 for (let input_index = 0; input_index < num_of_inputs; ++input_index) {
-                    sum += inputs[row_index][input_index] * weights[input_index];
+                    sum += inputs[row_index][input_index] * copy_weights[input_index];
                     if (input_index > 0) {
                         html += `+`;
                     }
-                    html += ` ${inputs[row_index][input_index]} * ${weights[input_index]} `;
+                    html += ` ${inputs[row_index][input_index]} * ${copy_weights[input_index]} `;
                 }
-                html += ` + ${bias} = ${sum + bias} $ </td> `;
+                html += ` + ${copy_bias} = ${sum + copy_bias} $ </td> `;
                 
-                sum += bias;
+                sum += copy_bias;
                 
                 const activation_result = activation_function_instance(sum);
                 if (activation_result === targets[row_index]) {
@@ -559,7 +578,10 @@ if (net < 0) {
         });
         
         */
+        
     }
     
     render_table_input_and_target();
+    render_initial_input();
+    render_input_reviews();
 }
