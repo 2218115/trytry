@@ -35,12 +35,9 @@ window.onload = function () {
     `
 if (net < 0) {
     return 0;
-} else if (0 <= net && net <= 1) {
+} else if (net >= 0) {
     return 1;
-} else {
-    return 10;
-}
-    `;
+}`;
     
     
     for (let row_index = 0; row_index < num_of_row_inputs; ++row_index) {
@@ -79,26 +76,48 @@ if (net < 0) {
     
     el_rule_selection.onchange = function (event) {
         rule = event.target.value
+        render_table_input_and_target();
     }
     
     el_input_precission.onkeyup = function (event) {
         global_precission = event.target.value;
+        render_table_input_and_target();
     }
     
-    window.on_input_change = function (row_index, input_index, value) {        
+    window.on_input_change = function (row_index, input_index, value) {
+        if (value == "-") { // guard for input negative
+            return;
+        }
+        
         inputs[row_index][input_index] = parseFloat(value);
+        render_table_input_and_target();
     }
 
     window.on_target_change = function (row_index, value) {
+        if (value == "-") { // guard for input negative
+            return;
+        }
+
         targets[row_index] = parseFloat(value);
+        render_table_input_and_target();
     }
     
     window.on_change_bias = function (value) {
-        bias = value;
+        if (value == "-") { // guard for input negative
+            return;
+        }
+
+        bias = parseFloat(value);
+        render_table_input_and_target();
     }
     
     window.on_change_weight = function (input_index, value) {
+        if (value == "-") { // guard for input negative
+            return;
+        }
+
         weights[input_index] = value;
+        render_table_input_and_target();
     } 
     
     window.on_append_row = function (row_index) {
@@ -126,6 +145,7 @@ if (net < 0) {
     
     window.on_change_activation_function = function (value) {
         raw_activation_function_text = value;
+        
     } 
     
     window.on_remove_row = function (row_index) {
@@ -182,7 +202,7 @@ if (net < 0) {
                 for (let input_index = 0; input_index < num_of_inputs; ++input_index) {
                     table_body += `<td> 
                         <input 
-                            type="number" 
+                            type="text" 
                             value="${inputs[row_index][input_index]}" 
                             onkeyup="on_input_change(${row_index}, ${input_index}, this.value)" /> 
                     </td>`;
@@ -191,7 +211,7 @@ if (net < 0) {
                 // target input
                 table_body += `<td> 
                     <input 
-                    type="number" 
+                    type="text" 
                     value="${targets[row_index]}" 
                     onkeyup="on_target_change(${row_index}, this.value)"/> 
                 </td>`;
@@ -228,7 +248,7 @@ if (net < 0) {
                         $ W_${input_index + 1} \ (bobot 1) $
                     </td>
                     <td>
-                        <input type="number" value="${weights[input_index]}" onkeyup="on_change_weight(${input_index}, this.value)"/>
+                        <input type="textr" value="${weights[input_index]}" onkeyup="on_change_weight(${input_index}, this.value)"/>
                     </td>
                 </tr>
                 `;
@@ -241,7 +261,7 @@ if (net < 0) {
                     $ b \\ (bias)$
                 </td>
                 <td>
-                    <input type="number" value="${bias}" onkeyup="on_change_bias(this.value)"/>
+                    <input type="textr" value="${bias}" onkeyup="on_change_bias(this.value)"/>
                 </td>
             </tr>
             
@@ -250,7 +270,7 @@ if (net < 0) {
                     $ Fungsi Aktifasi $
                 </td>
                 <td>
-                    <textarea rows="4" onkeyup="on_change_activation_function(this.value)">${raw_activation_function_text}</textarea>
+                    <textarea rows="10" cols="100"   onkeyup="on_change_activation_function(this.value)">${raw_activation_function_text}</textarea>
                 </td>
             </tr>
             `;
@@ -386,7 +406,67 @@ if (net < 0) {
             
             
             // evaluation on function activation
+            html += `
+            <div style="margin-top: 2rem;"> 
+                <h2> Hasil Uji </h2> 
+                <table>
+                    <thead>
+            `;
             
+            
+            html += `<tr> `;
+            for (let input_index = 0; input_index < num_of_inputs; ++input_index) {
+                html += `<th> $ X_${input_index + 1} $ </th>`;
+            }
+            // net
+            html += `<th> $ net = \\Sigma_{i=1}^n X_{i} * W_{i} + b $ </th>`;
+            // fnet
+            html += `<th> $ y = f(net) $ </th>`;
+            html += `</tr> </thead>`;
+            
+            html += `<tbody>`;
+            
+            let corresspon = true;
+                        
+            for (let row_index = 0; row_index < num_of_row_inputs; ++row_index) {
+                html += `<tr>`;
+                for (let input_index = 0; input_index < num_of_inputs; ++input_index) {
+                    html += `<td> $ ${inputs[row_index][input_index]} $  </td>`;
+                }
+                html += `<td> $ `;
+                let sum = 0;
+                for (let input_index = 0; input_index < num_of_inputs; ++input_index) {
+                    sum += inputs[row_index][input_index] * weights[input_index];
+                    if (input_index > 0) {
+                        html += `+`;
+                    }
+                    html += ` ${inputs[row_index][input_index]} * ${weights[input_index]} `;
+                }
+                html += ` + ${bias} = ${sum + bias} $ </td> `;
+                
+                sum += bias;
+                
+                const activation_result = activation_function_instance(sum);
+                if (activation_result === targets[row_index]) {
+                    html += `<td style="background-color: #bfffc1;"> $ ` + activation_result  + ` $ </td>`;
+                } else {
+                    html += `<td style="background-color: #ffc8c4;"> $ ` + activation_result  + ` $ </td>`;
+                    corresspon = false;
+                }
+                
+                html += ` </tr>`;
+            }
+            
+            html += `
+                    </tbody>
+                </table>
+            </div>`;
+            
+            if (corresspon) {
+                html += `<div style="margin-top: 2rem;"> <h2>Hasil Uji sesuai</h2> </div>`;
+            } else {
+                html += `<div style="margin-top: 2rem;"> <h2>Hasil Uji Tidak sesuai</h2> </div>`;
+            }
             
             
             el_result_content.innerHTML = html;            
