@@ -404,7 +404,7 @@ if (net < 0) {
             for (let row_index = 0; row_index < num_of_row_inputs; ++row_index) {
                 html += `<div class="container"> <p> $`;
                 for (let input_index = 0; input_index < num_of_inputs; ++input_index) {
-                    html += `W_${input_index + 1} = ${copy_weights[row_index]}; `;   
+                    html += `W_${input_index + 1} = ${copy_weights[input_index]}; `;   
                 }
                 html += `y = ${targets[row_index]} \\ (target) $ </p>`;
                 
